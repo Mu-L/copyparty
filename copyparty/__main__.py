@@ -1520,6 +1520,7 @@ def add_smb(ap):
     ap2.add_argument("--smb-nwa-1", action="store_true", help="truncate directory listings to 64kB (~400 files); avoids impacket-0.11 bug, fixes impacket-0.12 performance")
     ap2.add_argument("--smb-nwa-2", action="store_true", help="disable impacket workaround for filecopy globs")
     ap2.add_argument("--smba", action="store_true", help="small performance boost: disable per-account permissions, enables account coalescing instead (if one user has write/delete-access, then everyone does)")
+    ap2.add_argument("--smb6", action="store_true", help="enable IPv6")
     ap2.add_argument("--smbv", action="store_true", help="verbose")
     ap2.add_argument("--smbvv", action="store_true", help="verboser")
     ap2.add_argument("--smbvvv", action="store_true", help="verbosest")
