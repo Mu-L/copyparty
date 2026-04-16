@@ -1800,7 +1800,11 @@ class HttpCli(object):
         topdir = {"vp": "", "st": st}
         fgen: Iterable[dict[str, Any]] = []
 
-        depth = self.headers.get("depth", "infinity").lower()
+        if stat.S_ISDIR(st.st_mode):
+            depth = self.headers.get("depth", "infinity").lower()
+        else:
+            depth = "0"
+
         if depth == "infinity":
             # allow depth:0 from unmapped root, but require read-axs otherwise
             if not self.can_read and (self.vpath or self.asrv.vfs.realpath):
@@ -1808,12 +1812,6 @@ class HttpCli(object):
                 t = t % ("/" + self.vpath,)
                 self.log(t, 3)
                 raise Pebkac(401, t)
-
-            if not stat.S_ISDIR(topdir["st"].st_mode):
-                t = "depth:infinity can only be used on folders; %r is 0o%o"
-                t = t % ("/" + self.vpath, topdir["st"])
-                self.log(t, 3)
-                raise Pebkac(400, t)
 
             if not self.args.dav_inf:
                 self.log("client wants --dav-inf", 3)
@@ -1835,7 +1833,7 @@ class HttpCli(object):
                 wrap=False,
             )
 
-        elif depth == "0" or not stat.S_ISDIR(st.st_mode):
+        elif depth == "0":
             if depth == "0" and not self.vpath and not vn.realpath:
                 # rootless server; give dummy listing
                 self.can_read = True
