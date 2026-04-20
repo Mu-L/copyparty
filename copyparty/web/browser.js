@@ -5740,8 +5740,10 @@ var thegrid = (function () {
 		var ths = QSA('#ggrid>a');
 
 		for (var a = 0, aa = ths.length; a < aa; a++) {
-			var tr = ebi(ths[a].getAttribute('ref')).closest('tr'),
-				cl = tr.className || '';
+			var ref = ths[a].getAttribute('ref');
+			if (!ref)
+				continue;
+			var cl = ebi(ref).closest('tr').className || '';
 
 			if (noq_href(ths[a]).endsWith('/'))
 				cl += ' dir';
@@ -6269,6 +6271,9 @@ var ahotkeys = function (e) {
 		if (thegrid.en)
 			return ebi('griden').click();
 	}
+
+	if (aet == 'input')
+		return;
 
 	var in_ftab = (aet == 'tr' || aet == 'td') && ae.closest('#files');
 	if (in_ftab) {
