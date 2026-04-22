@@ -1216,7 +1216,7 @@ def add_general(ap, nc, srvname):
     ap2.add_argument("--name-url", metavar="TXT", type=u, help="URL for server name hyperlink (displayed topleft in browser)")
     ap2.add_argument("--name-html", type=u, help=argparse.SUPPRESS)
     ap2.add_argument("--site", metavar="URL", type=u, default="", help="public URL to assume when creating links; example: [\033[32mhttps://example.com/\033[0m]")
-    ap2.add_argument("--env-expand", metavar="N", type=int, default=-1, help="syntax to expect for environment-variables to expand in config-files; [\033[32m0\033[0m]=disable, [\033[32m1\033[0m]=$VAR (old syntax (scary)), [\033[32m2\033[0m]=${VAR} (new syntax (recommended))")
+    ap2.add_argument("--env-expand", metavar="N", type=int, default=-1, help="expand environment-variables in config-files? [\033[32m0\033[0m]=no, [\033[32m1\033[0m]=$VAR (old scary syntax), [\033[32m2\033[0m]=${VAR} (new recommended syntax); default is new-syntax with panic if old-syntax is seen")
     ap2.add_argument("--mime", metavar="EXT=MIME", type=u, action="append", help="\033[34mREPEATABLE:\033[0m map file \033[33mEXT\033[0mension to \033[33mMIME\033[0mtype, for example [\033[32mjpg=image/jpeg\033[0m]")
     ap2.add_argument("--mimes", action="store_true", help="list default mimetype mapping and exit")
     ap2.add_argument("--rmagic", action="store_true", help="do expensive analysis to improve accuracy of returned mimetypes; will make file-downloads, rss, and webdav slower (volflag=rmagic)")
@@ -1588,10 +1588,10 @@ def add_stats(ap):
 
 def add_yolo(ap):
     ap2 = ap.add_argument_group("yolo options")
-    ap2.add_argument("--allow-csrf", action="store_true", help="disable csrf protections; let other domains/sites impersonate you through cross-site requests")
+    ap2.add_argument("--allow-csrf", action="store_true", help="disable csrf protections; let other domains/sites impersonate you through cross-site requests; \033[1;31mDANGEROUS\033[0m / LAN-only")
     ap2.add_argument("--cookie-lax", action="store_true", help="allow cookies from other domains (if you follow a link from another website into your server, you will arrive logged-in); this reduces protection against CSRF")
     ap2.add_argument("--no-fnugg", action="store_true", help="disable the smoketest for caching-related issues in the web-UI")
-    ap2.add_argument("--getmod", action="store_true", help="permit ?move=[...] and ?delete as GET")
+    ap2.add_argument("--getmod", action="store_true", help="permit ?move=[...] and ?delete as GET -- \033[1;31mDANGEROUS\033[0m, removes csrf protection")
     ap2.add_argument("--wo-up-readme", action="store_true", help="allow users with write-only access to upload logues and readmes without adding the _wo_ filename prefix (volflag=wo_up_readme)")
     ap2.add_argument("--unsafe-state", action="store_true", help="when one of the emergency fallback locations are used for runtime state ($TMPDIR, /tmp), certain features will be force-disabled for security reasons by default. This option overrides that safeguard and allows unsafe storage of secrets")
 

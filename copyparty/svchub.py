@@ -57,6 +57,7 @@ from .util import (
     HAVE_PSUTIL,
     HAVE_SQLITE3,
     HAVE_ZMQ,
+    LOG,
     RE_ANSI,
     URL_BUG,
     UTC,
@@ -215,6 +216,8 @@ class SvcHub(object):
         lh = HLog(self.log)
         lg.handlers = [lh]
         lg.setLevel(logging.DEBUG)
+
+        LOG[:] = [self.log]
 
         self._check_env()
 

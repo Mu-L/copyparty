@@ -62,6 +62,9 @@ def noop(*a, **ka):
     pass
 
 
+LOG = [print]
+
+
 try:
     from datetime import datetime, timezone
 
@@ -788,7 +791,7 @@ def read_utf8(log: Optional["NamedLogger"], ap: Union[str, bytes], strict: bool)
         if log:
             log(t, 3)
         else:
-            print(t)
+            LOG[0]("#", t)
         return buf.decode("utf-8", "replace")
 
     t = "ERROR: The file [%s] is not using the UTF-8 character encoding, and cannot be loaded. The first unreadable character was byte %r at offset %d. Please convert this file to UTF-8 by opening the file in your text-editor and saving it as UTF-8."
@@ -796,7 +799,7 @@ def read_utf8(log: Optional["NamedLogger"], ap: Union[str, bytes], strict: bool)
     if log:
         log(t, 3)
     else:
-        print(t)
+        LOG[0]("#", t)
     raise NotUTF8(t)
 
 
@@ -1573,12 +1576,18 @@ def _expand_osenv_c(txt) -> str:
     ret = zsl[0]
     for v in zsl[1:]:
         if "}" not in v:
-            raise Exception("missing '}' after %r in config-value %r" % (v, txt))
+            t = "missing '}' after %r in config-value %r" % (v, txt)
+            LOG[0]("ERROR:", t)
+            raise Exception(t)
         a, b = v.split("}", 1)
         try:
             ret += os.environ[a] + b
+            continue
         except:
-            raise Exception("env-var %r not defined; config-value %r" % (a, txt))
+            pass
+        t = "env-var %r not defined; config-value %r" % (a, txt)
+        LOG[0]("ERROR:", t)
+        raise Exception(t)
     return ret
 
 
