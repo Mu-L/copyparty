@@ -1615,8 +1615,24 @@ def expand_osenv_cs(txt) -> str:
     b = expand_osenv_s(txt)
     if a == b:
         return a
-    t = "config-value %r is using the old syntax for environment-variables; choose one of the following options:\noption 1: update the config-value to the new syntax, ${VAR} instead of $VAR or %%VAR%%\noption 2: tell copyparty to allow the old syntax with global-option --env-expand 1 (risky)\noption 3: tell copyparty to only use the new syntax (and not expand this variable) with global-option --env-expand 2\noption 4: disable all environment-variable expansions with PRTY_NO_ENVEXPAND=1 or global-option --env-expand 0"
-    raise Exception(t % (txt,))
+
+    t = "config-value %r is using old syntax for environment-variables; choose one of the following:\noption 1: update the config-value to the new syntax; ${VAR} instead of $VAR or %%VAR%%\noption 2: allow and expand old-syntax with global-option --env-expand 1 (risky)\noption 3: ignore/disable expansion of old-syntax with global-option --env-expand 2\noption 4: disable all env-var expansions by setting env-var PRTY_NO_ENVEXPAND=1"
+    t = t % (txt,)
+    LOG[0]("WARNING:", t)
+
+    try:
+        _, _ = txt.split("$")
+        zs = r"\$(LOGS_DIRECTORY|XDG_[A-Z]+_HOME|XDG_[A-Z]+_DIR)\b"
+        txt = re.sub(zs, r"${\1}", txt)
+
+        a = expand_osenv_c(txt)
+        b = expand_osenv_s(txt)
+        if a == b:
+            return a
+    except:
+        pass
+
+    raise Exception(t)
 
 
 def rice_tid() -> str:
