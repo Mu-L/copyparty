@@ -62,7 +62,18 @@ def noop(*a, **ka):
     pass
 
 
-LOG = [print]
+def lprint(*a: Any, **ka: Any) -> None:
+    eol = ka.pop("end", "\n")
+    txt = " ".join(unicode(x) for x in a) + eol
+    lprinted.append(txt)
+    if not VT100 and "\033" in txt:
+        txt = RE_ANSI.sub("", txt)
+
+    print(txt, end="", **ka)
+
+
+lprinted: list[str] = []
+LOG: list[Callable[[Any], None]] = [lprint]
 
 
 try:

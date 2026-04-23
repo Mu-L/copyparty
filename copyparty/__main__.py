@@ -71,6 +71,7 @@ from .util import (
     expand_osenv_s,
     has_resource,
     load_resource,
+    lprint,
     min_ex,
     pybin,
     read_utf8,
@@ -98,7 +99,6 @@ except:
     HAVE_SSL = False
 
 u = unicode
-printed: list[str] = []
 zsid = uuid.uuid4().urn[4:]
 
 CFG_DEF = [os.environ.get("PRTY_CONFIG", "")]
@@ -172,16 +172,6 @@ class BasicDodge11874(
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs["width"] = 9003
         super(BasicDodge11874, self).__init__(*args, **kwargs)
-
-
-def lprint(*a: Any, **ka: Any) -> None:
-    eol = ka.pop("end", "\n")
-    txt: str = " ".join(unicode(x) for x in a) + eol
-    printed.append(txt)
-    if not VT100:
-        txt = RE_ANSI.sub("", txt)
-
-    print(txt, end="", **ka)
 
 
 def warn(msg: str) -> None:
@@ -2303,7 +2293,7 @@ def main(argv: Optional[list[str]] = None) -> None:
 
     # signal.signal(signal.SIGINT, sighandler)
 
-    SvcHub(al, dal, argv, "".join(printed)).run()
+    SvcHub(al, dal, argv).run()
 
 
 if __name__ == "__main__":
