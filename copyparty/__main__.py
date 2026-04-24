@@ -70,6 +70,8 @@ from .util import (
     expand_osenv_noop,
     expand_osenv_s,
     has_resource,
+    list_ips,
+    list_nics,
     load_resource,
     lprint,
     min_ex,
@@ -634,6 +636,9 @@ def get_sects():
             \033[32m-i fd:\033[33m3\033[0m uses the socket passed to copyparty on file descriptor 3
 
             \033[33m-p\033[0m (tcp ports) is ignored for unix-sockets and FDs
+
+            \033[33m--list-nics\033[0m shows all network adapters (also offline ones);
+            \033[33m--list-ips\033[0m shows all LAN IPs
             """
             ),
         ],
@@ -1358,6 +1363,8 @@ def add_network(ap):
     ap2.add_argument("--s-wr-slp", metavar="SEC", type=float, default=0.0, help="debug: socket write delay in seconds")
     ap2.add_argument("--rsp-slp", metavar="SEC", type=float, default=0.0, help="debug: response delay in seconds")
     ap2.add_argument("--rsp-jtr", metavar="SEC", type=float, default=0.0, help="debug: response delay, random duration 0..\033[33mSEC\033[0m")
+    ap2.add_argument("--list-nics", action="store_true", help="debug: list detected network adapters")
+    ap2.add_argument("--list-ips", action="store_true", help="debug: list detected LAN IPs")
 
 
 def add_tls(ap, cert_path):
@@ -2122,6 +2129,14 @@ def main(argv: Optional[list[str]] = None) -> None:
 
     if "--mimes" in argv:
         print("\n".join("%8s %s" % (k, v) for k, v in sorted(MIMES.items())))
+        sys.exit(0)
+
+    if "--list-ips" in argv:
+        print("\n".join(str(x) for x in sorted(list_ips())))
+        sys.exit(0)
+
+    if "--list-nics" in argv:
+        print("\n".join(str(x) for x in sorted(list_nics(True).items())))
         sys.exit(0)
 
     if EXE:

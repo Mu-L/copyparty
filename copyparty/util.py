@@ -3176,6 +3176,31 @@ def list_ips() -> list[str]:
     return list(ret)
 
 
+def list_nics(alll: bool = False) -> dict[str, Netdev]:
+    nics = get_adapters(alll)
+    eps: dict[str, Netdev] = {}
+    for nic in nics:
+        name = nic.nice_name
+        try:
+            idx = socket.if_nametoindex(name)
+            if idx and idx != nic.index:
+                LOG[0]("#", "nic-idx mismatch; ifaddr=%r libc=%r" % (nic.index, idx), 3)
+        except:
+            idx = nic.index
+
+        for nip in nic.ips:
+            ipa = nip.ip[0] if ":" in str(nip.ip) else nip.ip
+            sip = "%s/%s" % (ipa, nip.network_prefix)
+            nd = Netdev(sip, idx or 0, name, "")
+            eps[sip] = nd
+
+        if alll and not nic.ips:
+            zs = "no-ip-%s" % (idx,)
+            eps[zs] = Netdev(zs, idx or 0, name, "")
+
+    return eps
+
+
 def build_netmap(csv: str, defer_mutex: bool = False):
     csv = csv.lower().strip()
 
