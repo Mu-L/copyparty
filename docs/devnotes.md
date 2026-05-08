@@ -495,7 +495,8 @@ to get started, first `cd` into the `scripts` folder
 
 * if you want to build a docker-image, you have two options:
   * if you want to use podman to build all docker-images for all supported architectures, now run `(cd docker; make -C base; ./make.sh hclean; ./make.sh hclean pull img)`
-  * if you want to use docker to build all docker-images for your native architecture, now run `sudo make -C docker`
+  * if you want to use docker to build just the `ac` docker-image for your native architecture, now run `sudo make -C docker`
+    * to use docker to build something other than `ac`, list the image variants you want; `sudo make -C docker min im ac iv dj`
   * if you want to do something else, please take a look at `docker/make.sh` or `docker/Makefile` for inspiration
   * beware of the following:
     * if you build with docker, you get the [stock alpine-provided ffmpeg](https://github.com/9001/copyparty/blob/hovudstraum/docs/bad-codecs.md), which makes the docker-image almost twice as big
