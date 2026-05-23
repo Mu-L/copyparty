@@ -41,10 +41,11 @@ from .th_srv import (
     H_PIL_AVIF,
     H_PIL_HEIF,
     H_PIL_WEBP,
+    HAVE_DCRAW,
     HAVE_FFMPEG,
     HAVE_FFPROBE,
     HAVE_PIL,
-    HAVE_RAW,
+    HAVE_RAWPY,
     HAVE_VIPS,
     ThumbSrv,
 )
@@ -398,7 +399,7 @@ class SvcHub(object):
             decs.pop("vips", None)
         if not HAVE_PIL:
             decs.pop("pil", None)
-        if not HAVE_RAW:
+        if not HAVE_RAWPY and not HAVE_DCRAW:
             decs.pop("raw", None)
         if not HAVE_FFMPEG or not HAVE_FFPROBE:
             decs.pop("ff", None)
@@ -1009,7 +1010,8 @@ class SvcHub(object):
             (HAVE_ZMQ, "pyzmq", "send zeromq messages from event-hooks"),
             (H_PIL_HEIF, "pillow-heif", "read .heif pics with pillow (rarely useful)"),
             (H_PIL_AVIF, "pillow-avif", "read .avif pics with pillow (rarely useful)"),
-            (HAVE_RAW, "rawpy", "read RAW images"),
+            (HAVE_RAWPY, "rawpy", "read RAW images"),
+            (HAVE_DCRAW, "libraw", "read RAW images"),
         ]
         if ANYWIN:
             to_check += [

@@ -18,7 +18,7 @@ from queue import Queue
 from .__init__ import ANYWIN, PY2, TYPE_CHECKING, unicode
 from .authsrv import VFS
 from .bos import bos
-from .mtag import HAVE_FFMPEG, HAVE_FFPROBE, au_unpk, ffprobe
+from .mtag import HAVE_FFMPEG, HAVE_FFPROBE, au_unpk, ffprobe, have_ff
 from .util import BytesIO  # type: ignore
 from .util import (
     FFMPEG_URL,
@@ -201,16 +201,22 @@ except Exception as e:
         logging.warning("libvips found, but failed to load: " + str(e))
 
 
+PRTY_NO_RAW = os.environ.get("PRTY_NO_RAW")
+PRTY_NO_RAWPY = PRTY_NO_RAW or os.environ.get("PRTY_NO_RAWPY")
+PRTY_NO_DCRAW = PRTY_NO_RAW or os.environ.get("PRTY_NO_DCRAW")
 try:
-    if os.environ.get("PRTY_NO_RAW"):
+    if PRTY_NO_RAWPY:
         raise Exception()
 
-    HAVE_RAW = True
+    HAVE_RAWPY = True
     import rawpy
 
     logging.getLogger("rawpy").setLevel(logging.WARNING)
 except:
-    HAVE_RAW = False
+    HAVE_RAWPY = False
+
+
+HAVE_DCRAW = not PRTY_NO_DCRAW and have_ff("dcraw_emu")
 
 
 th_dir_cache = {}
@@ -306,6 +312,8 @@ class ThumbSrv(object):
             self.log(msg, c=3)
             if ANYWIN and self.args.no_acode:
                 self.log("download FFmpeg to fix it:\033[0m " + FFMPEG_URL, 3)
+
+        self.conv_raw = self._conv_rawpy if HAVE_RAWPY else self._conv_dcraw
 
         if self.args.th_clean:
             Daemon(self.cleaner, "thumb.cln")
@@ -758,8 +766,39 @@ class ThumbSrv(object):
 
         self.conv_image_vips(_loader, tpath, fmt, vn)
 
-    def conv_raw(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
-        self.wait4ram(0.2, tpath)
+    def _conv_dcraw(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
+        self.wait4ram(0.6, tpath)
+        # fmt: off
+        cmd = [
+            b"dcraw_emu",
+            b"-h",  # halfsize
+            b"-o", b"1",  # srgb
+            b"-s", b"0",  # first frame
+            b"-Z", b"-",  # to stdout
+            fsenc(abspath),
+        ]
+        # fmt: on
+        p = sp.Popen(cmd, stdout=sp.PIPE)
+        try:
+            if HAVE_PIL:
+                self.conv_image_pil(Image.open(p.stdout), tpath, fmt, vn)
+            elif HAVE_VIPS:
+                ppm, _ = p.communicate(timeout=vn.flags["convt"])
+
+                def _loader(w: int, kw: dict) -> Any:
+                    return pyvips.Image.thumbnail_buffer(ppm, w, **kw)
+
+                self.conv_image_vips(_loader, tpath, fmt, vn)
+            else:
+                raise Exception(
+                    "either pil or vips is needed to process embedded bitmap thumbnails in raw files"
+                )
+        finally:
+            if p and p.poll() is None:
+                p.kill(9)
+
+    def _conv_rawpy(self, abspath: str, tpath: str, fmt: str, vn: VFS) -> None:
+        self.wait4ram(0.6, tpath)
         with rawpy.imread(abspath) as raw:
             thumb = raw.extract_thumb()
         if thumb.format == rawpy.ThumbFormat.JPEG and tpath.endswith(".jpg"):
