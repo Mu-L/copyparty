@@ -230,11 +230,6 @@ def thumb_path(histpath: str, rem: str, mtime: float, fmt: str, ffa: set[str]) -
     if not rd:
         rd = "\ntop"
 
-    # spectrograms are never cropped; strip fullsize flag
-    ext = rem.split(".")[-1].lower()
-    if ext in ffa and fmt[:2] in ("wf", "jf", "xf"):
-        fmt = fmt.replace("f", "")
-
     dcache = th_dir_cache
     rd_key = rd + "\n" + fmt
     rd = dcache.get(rd_key)
