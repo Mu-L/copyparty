@@ -1,6 +1,6 @@
 # coding: utf-8
 
-VERSION = (1, 20, 15)
+VERSION = (1, 20, 16)
 CODENAME = "sftp is fine too"
 BUILD_DT = (2026, 5, 26)
 

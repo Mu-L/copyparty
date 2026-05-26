@@ -53,22 +53,23 @@ def have_ff(name: str) -> bytes:
 
     ebin = os.environ.get("PRTY_%s_BIN" % (uname,))
     try:
-        bcmd = (ebin or name).encode("utf-8")
+        scmd = (ebin or name).decode("utf-8")
     except:
-        bcmd: bytes = ebin or name
+        scmd: str = ebin or name
 
     if ANYWIN and not ebin:
-        bcmd += b".exe"
+        scmd += ".exe"
 
     if PY2:
-        print("# checking {}".format(bcmd))
+        print("# checking %s" % (scmd,))
+        bcmd = scmd.encode("utf-8")
         try:
             sp.Popen([bcmd, b"-version"], stdout=sp.PIPE, stderr=sp.PIPE).communicate()
             return bcmd
         except:
             return b""
     else:
-        return shutil.which(bcmd) or b""
+        return (shutil.which(scmd) or "").encode("utf-8")
 
 
 HAVE_FFMPEG = have_ff("ffmpeg")
