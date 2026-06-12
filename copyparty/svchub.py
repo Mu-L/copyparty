@@ -51,6 +51,7 @@ from .th_srv import (
 )
 from .up2k import Up2k
 from .util import (
+    BLOCK_SIGS,
     DEF_EXP,
     DEF_MTE,
     DEF_MTH,
@@ -1486,6 +1487,8 @@ class SvcHub(object):
 
         for sig in sigs:
             signal.signal(sig, self.signal_handler)
+            if sig not in BLOCK_SIGS and BLOCK_SIGS:
+                BLOCK_SIGS.append(sig)
 
         if self.args.sig_thr:
             Daemon(self._signal_thr, "svchub-sig")
