@@ -657,6 +657,14 @@ if EXE:
             pass
 
 
+try:
+    if PY2 or ANYWIN:
+        raise Exception()
+    HAVE_BWRAP = shutil.which("bwrap")
+except:
+    HAVE_BWRAP = ""
+
+
 def py_desc() -> str:
     interp = platform.python_implementation()
     py_ver = ".".join([str(x) for x in sys.version_info])
